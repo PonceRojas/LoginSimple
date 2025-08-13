@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Paper, Typography, TextField, Button } from '@mui/material';
 import { keyframes } from '@emotion/react';
+import userService from '../db/services/userService'; // Selector de backend
 
-// Definir keyframes para la animación del borde
+// Animación borde
 const borderAnimation = keyframes`
   0% {
     border-color: rgba(30, 60, 114, 0.5);
@@ -19,93 +20,87 @@ const borderAnimation = keyframes`
   }
 `;
 
-// Definir keyframes para una animación sutil del fondo (pulso de brillo)
+// Pulso de brillo
 const backgroundPulse = keyframes`
-  0% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.05);
-  }
-  100% {
-    filter: brightness(1);
-  }
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.05); }
+  100% { filter: brightness(1); }
 `;
 
-// AJUSTE REALIZADO: keyframes para el movimiento y volteo del gatito, invirtiendo el 'scaleX'
-// (Asumiendo que el GIF original sigue mirando a la IZQUIERDA por defecto)
+// Movimiento gatito
 const catMovement = keyframes`
-  0% {
-    transform: translateX(-100%) scaleX(-1); /* Inicia fuera por la izquierda, volteado para mirar a la DERECHA */
-  }
-  25% {
-    transform: translateX(10%) scaleX(-1); /* Moviéndose a la derecha, mirando a la DERECHA */
-  }
-  49% {
-    transform: translateX(calc(100vw - 100px - 10%)) scaleX(-1); /* Casi al borde derecho, mirando a la DERECHA */
-  }
-  50% {
-    transform: translateX(calc(100vw - 100px - 10%)) scaleX(1); /* En el punto de giro, voltea para mirar a la IZQUIERDA */
-  }
-  75% {
-    transform: translateX(10%) scaleX(1); /* Regresando a la izquierda, mirando a la IZQUIERDA */
-  }
-  100% {
-    transform: translateX(-100%) scaleX(1); /* Sale por la izquierda, mirando a la IZQUIERDA (listo para el siguiente ciclo) */
-  }
+  0% { transform: translateX(-100%) scaleX(-1); }
+  25% { transform: translateX(10%) scaleX(-1); }
+  49% { transform: translateX(calc(100vw - 100px - 10%)) scaleX(-1); }
+  50% { transform: translateX(calc(100vw - 100px - 10%)) scaleX(1); }
+  75% { transform: translateX(10%) scaleX(1); }
+  100% { transform: translateX(-100%) scaleX(1); }
 `;
-
 
 const Login = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/admin');
+    try {
+      const user = await userService.login(username, password);
+      if (user) {
+        navigate('/admin');
+      } else {
+        alert('Usuario o contraseña incorrectos');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al iniciar sesión');
+    }
   };
 
   return (
     <Box
       sx={{
-        height: '100vh',
+        minHeight: '100vh',
+        width: '100vw',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative',
+        position: 'fixed',
+        top: 0,  //Apartado par aajustar el tamaño de la imagen para el fondo de pantalla del login
+        left: 0,
         overflow: 'hidden',
         backgroundImage: 'url("https://elcomercio.pe/resizer/mMMnXspIbXl6uHtZiG1otTEbWds=/1500x836/smart/filters:format(jpeg):quality(75)/arc-anglerfish-arc2-prod-elcomercio.s3.amazonaws.com/public/NFZ7N7B7YVEINGAJOXK3TLNFH4.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         animation: `${backgroundPulse} 15s infinite ease-in-out`,
-
         '&::before': {
           content: '""',
           position: 'absolute',
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: '100vw',
+          height: '100vh',
           background: 'rgba(30, 60, 114, 0.6)',
           zIndex: 0,
         },
       }}
     >
-      {/* Gatito animado que se mueve y voltea */}
+      {/* Gatito animado */}
       <Box
         component="img"
-        src="/Cat.gif" // ¡Asegúrate que este GIF esté inicialmente mirando a la IZQUIERDA!
+        src="/Cat.gif"
         alt="Gatito animado"
         sx={{
           position: 'absolute',
           bottom: 20,
           left: 0,
-          width: 100, // Ancho del gatito
+          width: 100,
           height: 'auto',
           zIndex: 2,
           display: { xs: 'none', sm: 'block' },
-          animation: `${catMovement} 20s linear infinite`, // 20s de duración, movimiento lineal, infinito
-          transformOrigin: 'center center', // Asegura que el volteo sea desde el centro
+          animation: `${catMovement} 20s linear infinite`,
+          transformOrigin: 'center center',
         }}
       />
 
@@ -117,7 +112,7 @@ const Login = () => {
           width: 320,
           textAlign: 'center',
           zIndex: 1,
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
           border: '2px solid transparent',
           animation: `${borderAnimation} 4s infinite ease-in-out`,
         }}
@@ -132,6 +127,8 @@ const Login = () => {
             fullWidth
             required
             margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
             label="Contraseña"
@@ -140,6 +137,8 @@ const Login = () => {
             fullWidth
             required
             margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <Button
             type="submit"
