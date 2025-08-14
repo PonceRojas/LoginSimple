@@ -1,13 +1,18 @@
 import AbstractUserService from "./userServiceInterface";
 
 export default class MySQLUserService extends AbstractUserService {
+  constructor() {
+    super();
+    this.baseUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  }
+
   async fetchAll() {
-    const res = await fetch("http://localhost:3001/users");
+    const res = await fetch(`${this.baseUrl}/users`);
     return await res.json();
   }
 
   async create(user) {
-    const res = await fetch("http://localhost:3001/users", {
+    const res = await fetch(`${this.baseUrl}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
@@ -16,16 +21,16 @@ export default class MySQLUserService extends AbstractUserService {
   }
 
   async delete(userId) {
-    await fetch(`http://localhost:3001/users/${userId}`, { method: "DELETE" });
+    await fetch(`${this.baseUrl}/users/${userId}`, { method: "DELETE" });
     return { success: true };
   }
-//Apartado para la Logica De Login para el usuario dentro de MySQL
-async login(username, password) {
+
+  async login(username, password) {
     try {
-      const res = await fetch("http://localhost:3001/api/users/login", {   //Modificar siempre el localhost al puerto que se este utilizando
+      const res = await fetch(`${this.baseUrl}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
       if (!res.ok) return null;
       return await res.json();
@@ -34,6 +39,4 @@ async login(username, password) {
       return null;
     }
   }
-
 }
-//Modificar este apartado para saber en que apartado de base de datos esta trabajando
