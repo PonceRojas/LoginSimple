@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route,Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/admin/Dashboard";
-import Landing from "./pages/Landing";
+import Landing from "./pages/web/Landing";
 
 const showLanding = process.env.REACT_APP_SHOW_LANDING === "true";
 

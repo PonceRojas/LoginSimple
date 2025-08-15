@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Typography, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { keyframes } from "@emotion/react";
-import FullScreenBackground from "../components/FullScreenBackground";
+import FullScreenBackground from "../web/componentes/FullScreenBackground.jsx";
 
 // Animación de entrada del contenido
 const fadeIn = keyframes`
