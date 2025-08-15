@@ -1,13 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route,Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/admin/Dashboard";
+import Landing from "./pages/Landing";
+
+const showLanding = process.env.REACT_APP_SHOW_LANDING === "true";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+         {showLanding && <Route path="/Landing" element={<Landing />} />}
+
+        <Route path="/" element={showLanding ? <Navigate to="/Landing" /> : <Login />}
+        />
         <Route path="/admin" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+
       </Routes>
     </BrowserRouter>
   );
